@@ -4,6 +4,7 @@ import jdk.nashorn.internal.parser.JSONParser;
 import static spark.Spark.get;
 import static spark.Spark.post;
 import org.json.JSONObject;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.ArrayList;
@@ -12,10 +13,12 @@ public class test {
     static Lomtest lt = new Lomtest();
 //    public static  int testlom=0;
     public static void main(String[] args){
+        DBconnectivity db = new DBconnectivity();
 
         ObjectMapper mapper = new ObjectMapper();
         String jsonString = "{\"name\":\"Akhil\", \"age\":22}";
         try{
+            db.jdbcCon();
             Student student = mapper.readValue(jsonString, Student.class);
             jsonString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(student);
             System.out.print(jsonString);
@@ -31,18 +34,26 @@ public class test {
         multiSelector();
 //      System.out.print();
 
-        get("/hello", (req,res) -> {
+        get("/getData", (req,res) -> {
             System.out.println("request headers"+req.headers());
 //            res.status(401);
+//            db.jdbcCon();
             return "go away";
         });
-        post("/hi", (req,res) -> {
+        post("/postData", (req,res) -> {
 
 
             System.out.println("request headers"+req.headers()+"instanceOF()"+ req.body().getClass().getName());
 //            res.status(401);
             JSONObject json = new JSONObject(req.body());
-            return "hello " + json.getString("name");
+            db.insertData(json.getString("name"));
+            return "Name " + json.getString("name") + "is added in database";
+        });
+        get("/getData/:rollno", (req,res) -> {
+            System.out.println("request headers"+req.headers());
+//            res.status(401);
+            int rn=Integer.parseInt(req.params(":rollno"));
+            return "hello "+ db.getData(rn);
         });
 
 
@@ -100,6 +111,8 @@ public class test {
             System.out.print("\n");
         }
     }
+
+
 
 
 }
