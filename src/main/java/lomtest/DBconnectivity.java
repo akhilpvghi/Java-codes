@@ -1,33 +1,23 @@
 package lomtest;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 
 public class DBconnectivity {
     public static void jdbcCon() throws SQLException {
         try
         {
             Class.forName("com.mysql.jdbc.Driver");
-            System.out.print("check db connectivity");
-            Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/expt",
-                    "root", "root");
-
-            ResultSet rs = conn.createStatement().executeQuery("select * from expt.student");
-//        ResultSetMetaData rsmd = rs.getMetaData();
+            ResultSet rs = getConnection().createStatement().executeQuery("select * from expt.student");
             while (rs.next()) {
-//            for ( int i=1; i <= rsmd.getColumnCount(); i++){;
                 System.out.print(" "+rs.getString("name")+ "\t\t" + rs.getString("rollno"));
-//            }
-
                 System.out.println();
             }
-            conn.close();
-//            statementObj.close();
+            getConnection().close();
             rs.close();
-//            System.out.print("check db connectivity" + rs);
         }
         catch (Exception e){
             System.out.print(" error in sqql"+e);
@@ -36,10 +26,8 @@ public class DBconnectivity {
 
     public static void insertData(String s) {
         try{
-            Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/expt",
-                    "root", "root");
-            String query ="INSERT INTO student " + "VALUES ('" +s+ "',20)";
-            conn.createStatement().executeUpdate(query);
+            String query ="INSERT INTO student " + "VALUES ('" +s+ "',90)";
+            getConnection().createStatement().executeUpdate(query);
         }catch(Exception e){
 
         }
@@ -48,13 +36,8 @@ public class DBconnectivity {
 
     public static String getData(int rollno) {
         try{
-            Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/expt",
-                    "root", "root");
             String getQuery="select * from expt.student where rollno="+rollno+"";
-            ResultSet rs = conn.createStatement().executeQuery(getQuery);
-
-//            String query ="INSERT INTO student " + "VALUES ('" +s+ "',20)";
-//            conn.createStatement().executeUpdate(query);
+            ResultSet rs = getConnection().createStatement().executeQuery(getQuery);
             rs.next();
             return rs.getString("name");
         }
@@ -64,6 +47,20 @@ public class DBconnectivity {
         }
 
 
+    }
+
+    public static Connection getConnection(){
+        GetConfiguration gc =new GetConfiguration();
+        Connection conn = null;
+        try {
+             conn = DriverManager.getConnection(gc.getConfig().get(ConfigConstant.DBURL),
+                    gc.getConfig().get(ConfigConstant.USERNAME), gc.getConfig().get(ConfigConstant.PASSWORD));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return conn;
     }
 
 

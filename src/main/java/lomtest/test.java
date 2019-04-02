@@ -1,17 +1,13 @@
-package lomtest;//import static spark.Spark.*;
-import jdk.nashorn.internal.parser.JSONParser;
-
+package lomtest;
 import static spark.Spark.get;
 import static spark.Spark.post;
 import org.json.JSONObject;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.ArrayList;
 
 public class test {
     static Lomtest lt = new Lomtest();
-//    public static  int testlom=0;
     public static void main(String[] args){
         DBconnectivity db = new DBconnectivity();
 
@@ -26,18 +22,14 @@ public class test {
         catch(Exception e){
             System.out.print(e.getStackTrace());
         }
-//        System.out.println(student);
 
         System.out.println("hello");
         lt.setLomtestvar(10);
         System.out.println("Lomtestvar"+ lt.getLomtestvar());
         multiSelector();
-//      System.out.print();
 
         get("/getData", (req,res) -> {
             System.out.println("request headers"+req.headers());
-//            res.status(401);
-//            db.jdbcCon();
             return "go away";
         });
         post("/postData", (req,res) -> {
@@ -46,12 +38,19 @@ public class test {
             System.out.println("request headers"+req.headers()+"instanceOF()"+ req.body().getClass().getName());
 //            res.status(401);
             JSONObject json = new JSONObject(req.body());
+            if (json.isNull("name")){
+                res.status(400);
+                System.out.print("name is null");
+                return "name is empty";
+            }
+            else{
             db.insertData(json.getString("name"));
+                res.status(200);
             return "Name " + json.getString("name") + "is added in database";
+            }
         });
         get("/getData/:rollno", (req,res) -> {
             System.out.println("request headers"+req.headers());
-//            res.status(401);
             int rn=Integer.parseInt(req.params(":rollno"));
             return "hello "+ db.getData(rn);
         });
@@ -102,17 +101,10 @@ public class test {
                     k++;
                 }
 
-
-
             }
-
-
 
             System.out.print("\n");
         }
     }
-
-
-
 
 }
